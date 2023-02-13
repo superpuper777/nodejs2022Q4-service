@@ -16,32 +16,6 @@ import { v4 as uuidv4 } from 'uuid';
 export class UsersService {
   constructor(private db: DatabaseService) {}
 
-  // create(createUserDto: CreateUserDto): User {
-  //   // if (
-  //   //   createUserDto.hasOwnProperty('login') &&
-  //   //   createUserDto.hasOwnProperty('password')
-  //   // )
-  //   const { login, password } = createUserDto;
-  //   if (!login || !password) {
-  //     throw new BadRequestException('Bad request. Try again');
-  //   }
-  //   const uuid = uuidv4();
-  //   const startVersion = 1;
-
-  //   const creationTimestamp = Date.now();
-  //   const lastUpdateTimestamp = creationTimestamp;
-  //   const newUser = new NewUser({
-  //     id: uuid,
-  //     ...createUserDto,
-  //     version: startVersion,
-  //     createdAt: creationTimestamp,
-  //     updatedAt: lastUpdateTimestamp,
-  //   });
-  //   this.db.users.push(newUser);
-  //   console.log(newUser);
-  //   return newUser;
-  // }
-
   create(createUserDto: CreateUserDto): User {
     if (!createUserDto.hasOwnProperty('login')) {
       throw new BadRequestException('Bad request. Try again');
