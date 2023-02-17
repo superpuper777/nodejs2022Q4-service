@@ -22,7 +22,7 @@ export class ArtistsService {
       const newArtist = new NewArtist(createArtistDto);
       this.db.artists.push(newArtist);
       return newArtist;
-    } else throw new BadRequestException();
+    } else throw new BadRequestException('Bad request. Try again');
   }
 
   findAll() {
@@ -34,11 +34,11 @@ export class ArtistsService {
     const artist: Artist = this.db.artists.find((artist) => artist.id === id);
 
     if (!isValid) {
-      throw new BadRequestException();
+      throw new BadRequestException('Bad request. Try again');
     }
 
     if (!artist) {
-      throw new NotFoundException();
+      throw new NotFoundException('Artist not found');
     }
 
     if (isValid && artist) {
@@ -68,7 +68,7 @@ export class ArtistsService {
       ...updateArtistDto,
     });
     if (index === -1) {
-      throw new NotFoundException();
+      throw new NotFoundException('Artist not found');
     }
     this.db.artists.splice(index, 1, updatedArtist);
 
