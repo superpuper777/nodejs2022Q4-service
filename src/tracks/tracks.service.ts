@@ -82,6 +82,15 @@ export class TracksService {
     if (index === -1) {
       throw new NotFoundException('Track not found');
     }
+
+    const idxFavoriteTrack = this.db.favorites.artists.findIndex(
+      (trackId) => trackId === id,
+    );
+
+    if (idxFavoriteTrack !== -1) {
+      this.db.favorites.tracks.splice(idxFavoriteTrack, 1);
+    }
+
     this.db.tracks.splice(index, 1);
   }
 }

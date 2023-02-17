@@ -86,11 +86,25 @@ export class ArtistsService {
       throw new NotFoundException();
     }
 
-    // this.db.tracks.forEach((track) => {
-    //   if (track.artistId === id) {
-    //     track.artistId = null;
-    //   }
-    // });
+    const idxFavoriteArtist = this.db.favorites.artists.findIndex(
+      (artistId) => artistId === id,
+    );
+
+    if (idxFavoriteArtist !== -1) {
+      this.db.favorites.artists.splice(idxFavoriteArtist, 1);
+    }
+
+    this.db.tracks.forEach((track) => {
+      if (track.artistId === id) {
+        track.artistId = null;
+      }
+    });
+
+    this.db.albums.forEach((album) => {
+      if (album.artistId === id) {
+        album.artistId = null;
+      }
+    });
 
     this.db.artists.splice(index, 1);
   }

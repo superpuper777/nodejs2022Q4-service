@@ -81,11 +81,20 @@ export class AlbumsService {
       throw new NotFoundException('Album not found');
     }
 
-    this.db.albums.splice(index, 1);
+    const idxFavoriteAlbum = this.db.favorites.albums.findIndex(
+      (artistId) => artistId === id,
+    );
 
-    // this.db.tracks.forEach((track) => {
-    //   if (track.albumId === id) {
-    //     track.albumId = null;
-    //   }
+    if (idxFavoriteAlbum !== -1) {
+      this.db.favorites.albums.splice(idxFavoriteAlbum, 1);
+    }
+
+    this.db.tracks.forEach((track) => {
+      if (track.albumId === id) {
+        track.albumId = null;
+      }
+    });
+
+    this.db.albums.splice(index, 1);
   }
 }
