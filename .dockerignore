@@ -1,0 +1,14 @@
+**/node_modules/
+**/dist
+npm-debug.log
+.coverage
+.DS_Store
+
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+.git
+.env
