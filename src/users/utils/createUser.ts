@@ -1,5 +1,5 @@
 import { Exclude } from 'class-transformer';
-import { User } from '@/users/entities/user.entity';
+import { IUser } from '@/users/entities/user.entity';
 
 export class NewUser {
   id: string;
@@ -11,7 +11,7 @@ export class NewUser {
   @Exclude()
   password: string;
 
-  constructor(partial: Partial<User>) {
+  constructor(partial: Partial<IUser>) {
     Object.assign(this, partial);
   }
 }
