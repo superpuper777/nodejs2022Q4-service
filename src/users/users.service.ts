@@ -35,8 +35,8 @@ export class UsersService {
 
   async findOne(id: string): Promise<User> {
     const isValid = UUIDv4.validate(id);
-    // const user = this.db.users.find((user) => user.id === id);
     const user = await this.usersRepository.findOneBy({ id });
+
     if (!isValid) {
       throw new BadRequestException('Bad request. Try again');
     }
@@ -77,7 +77,6 @@ export class UsersService {
   }
 
   async remove(id: string): Promise<void> {
-    // const index = this.db.users.findIndex((user) => user.id === id);
     const user = await this.usersRepository.findOneBy({ id });
     if (!UUIDv4.validate(id)) {
       throw new BadRequestException('Bad request. Try again');
