@@ -13,9 +13,9 @@ export class Artist {
   @Column('boolean')
   grammy: boolean;
 
-  @OneToMany((type) => Track, (track) => track.artistId)
+  @OneToMany(() => Track, (track) => track.artistId)
   tracks: Track[];
 
-  @OneToMany((type) => Album, (album) => album.artistId)
+  @OneToMany(() => Album, (album) => album.artistId)
   albums: Album[];
 }
