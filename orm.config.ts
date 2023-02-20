@@ -1,6 +1,5 @@
 import { DataSourceOptions } from 'typeorm';
 import 'dotenv/config';
-import { User } from './src/entity/User';
 
 export const ormConfig: DataSourceOptions = {
   type: 'postgres',

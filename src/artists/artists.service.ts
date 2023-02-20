@@ -3,36 +3,40 @@ import {
   BadRequestException,
   NotFoundException,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { UUIDv4 } from 'uuid-v4-validator';
-import { DatabaseService } from '@/database/database.service';
-import { NewArtist } from './utils/createArtist';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
 import { Artist } from '@/artists/entities/artist.entity';
+// import { Album } from '@/albums/entities/album.entity';
+// import { Track } from '@/tracks/entities/track.entity';
 
 @Injectable()
 export class ArtistsService {
-  constructor(private db: DatabaseService) {}
+  constructor(
+    @InjectRepository(Artist)
+    private artistRepository: Repository<Artist>,
+  ) {}
 
-  create(createArtistDto: CreateArtistDto) {
+  async create(createArtistDto: CreateArtistDto) {
+    const createdArtist = this.artistRepository.create(createArtistDto);
     if (
       createArtistDto.hasOwnProperty('name') &&
       createArtistDto.hasOwnProperty('grammy')
     ) {
-      const newArtist = new NewArtist(createArtistDto);
-      this.db.artists.push(newArtist);
-      return newArtist;
+      const savedArtist = await this.artistRepository.save(createdArtist);
+      return savedArtist;
     } else throw new BadRequestException('Bad request. Try again');
   }
 
   findAll() {
-    return this.db.artists;
+    return this.artistRepository.find();
   }
 
   findOne(id: string) {
     const isValid = UUIDv4.validate(id);
-    const artist: Artist = this.db.artists.find((artist) => artist.id === id);
-
+    const artist = this.artistRepository.findOneBy({ id });
     if (!isValid) {
       throw new BadRequestException('Bad request. Try again');
     }
@@ -46,66 +50,64 @@ export class ArtistsService {
     }
   }
 
-  update(id: string, updateArtistDto: UpdateArtistDto) {
-    const index = this.db.artists.findIndex((artist) => artist.id === id);
+  async update(id: string, updateArtistDto: UpdateArtistDto): Promise<Artist> {
+    const artist = await this.artistRepository.findOneBy({ id });
+
+    const { name, grammy } = updateArtistDto;
     if (!UUIDv4.validate(id)) {
       throw new BadRequestException();
     }
 
     if (!updateArtistDto.hasOwnProperty('name')) {
       throw new BadRequestException('Bad request. Try again');
-    }
+    } else artist.name = name;
     if (!updateArtistDto.hasOwnProperty('grammy')) {
       throw new BadRequestException('Bad request. Try again');
-    }
+    } else artist.grammy = grammy;
 
-    if (index !== -1) {
-      this.db.artists[index] = { id, ...updateArtistDto };
-    }
-    const artist = this.db.artists[index];
-    const updatedArtist = new NewArtist({
-      ...artist,
-      ...updateArtistDto,
-    });
-    if (index === -1) {
+    if (!artist) {
       throw new NotFoundException('Artist not found');
     }
-    this.db.artists.splice(index, 1, updatedArtist);
 
+    const updatedArtist = await this.artistRepository.save(artist);
     return updatedArtist;
   }
 
-  remove(id: string) {
-    const index = this.db.artists.findIndex((artist) => artist.id === id);
+  async remove(id: string) {
+    const artist = await this.artistRepository.findOneBy({ id });
 
     if (!UUIDv4.validate(id)) {
       throw new BadRequestException();
     }
 
-    if (index === -1) {
+    if (!artist) {
       throw new NotFoundException();
     }
 
-    const idxFavoriteArtist = this.db.favorites.artists.findIndex(
-      (artistId) => artistId === id,
-    );
+    // const idxFavoriteArtist = this.db.favorites.artists.findIndex(
+    //   (artistId) => artistId === id,
+    // );
 
-    if (idxFavoriteArtist !== -1) {
-      this.db.favorites.artists.splice(idxFavoriteArtist, 1);
-    }
+    // if (idxFavoriteArtist !== -1) {
+    //   this.db.favorites.artists.splice(idxFavoriteArtist, 1);
+    // }
 
-    this.db.tracks.forEach((track) => {
-      if (track.artistId === id) {
-        track.artistId = null;
-      }
-    });
+    // this.db.tracks.forEach((track) => {
+    //   if (track.artistId === id) {
+    //     track.artistId = null;
+    //   }
+    // });
 
-    this.db.albums.forEach((album) => {
-      if (album.artistId === id) {
-        album.artistId = null;
-      }
-    });
+    // this.db.albums.forEach((album) => {
+    //   if (album.artistId === id) {
+    //     album.artistId = null;
+    //   }
+    // });
 
-    this.db.artists.splice(index, 1);
+    // Album.findOne({ include: [Artist] }).then((album) => {
+    //   album.artistId.forEach((artist) => (artist = null));
+    // });
+
+    await this.artistRepository.delete(id);
   }
 }
