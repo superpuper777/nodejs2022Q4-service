@@ -80,7 +80,7 @@ export class TracksService {
     return updatedTrack;
   }
 
-  async remove(id: string) {
+  async remove(id: string): Promise<void> {
     const track = await this.trackRepository.findOneBy({ id });
 
     if (!UUIDv4.validate(id)) {

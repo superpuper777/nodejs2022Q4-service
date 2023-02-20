@@ -73,7 +73,7 @@ export class ArtistsService {
     return updatedArtist;
   }
 
-  async remove(id: string) {
+  async remove(id: string): Promise<void> {
     const artist = await this.artistRepository.findOneBy({ id });
 
     if (!UUIDv4.validate(id)) {
