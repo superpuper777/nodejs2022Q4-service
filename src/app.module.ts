@@ -1,17 +1,23 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { DatabaseModule } from './database/database.module';
-import { UsersModule } from './users/users.module';
-import { ArtistsModule } from './artists/artists.module';
-import { AlbumsModule } from './albums/albums.module';
-import { TracksModule } from './tracks/tracks.module';
-import { FavoritesModule } from './favorites/favorites.module';
+import { ormConfig } from '../orm.config';
+
+import {
+  DatabaseModule,
+  UsersModule,
+  ArtistsModule,
+  AlbumsModule,
+  TracksModule,
+  FavoritesModule,
+} from '@/modules';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({ isGlobal: true }),
+    TypeOrmModule.forRoot(ormConfig),
     DatabaseModule,
     UsersModule,
     ArtistsModule,
