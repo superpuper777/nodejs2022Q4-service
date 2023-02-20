@@ -9,16 +9,10 @@ import { Repository } from 'typeorm';
 import { UUIDv4 } from 'uuid-v4-validator';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
-// import { DatabaseService } from '@/database/database.service';
-// import { NewUser } from './utils/createUser';
-// import { IUser } from '@/users/entities/user.entity';
 import { User } from '@/entity/User';
-// import { v4 as uuidv4 } from 'uuid';
-
 @Injectable()
 export class UsersService {
   constructor(
-    // private db: DatabaseService,
     @InjectRepository(User)
     private usersRepository: Repository<User>,
   ) {}
