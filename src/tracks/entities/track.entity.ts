@@ -1,7 +1,19 @@
-export interface Track {
-  id: string; // uuid v4
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+
+@Entity('track')
+export class Track {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column()
   name: string;
-  artistId: string | null; // refers to Artist
-  albumId: string | null; // refers to Album
-  duration: number; // integer number
+
+  @Column({ default: null })
+  artistId: string | null;
+
+  @Column({ default: null })
+  albumId: string | null;
+
+  @Column()
+  duration: number;
 }

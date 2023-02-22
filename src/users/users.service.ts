@@ -4,52 +4,38 @@ import {
   NotFoundException,
   ForbiddenException,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { UUIDv4 } from 'uuid-v4-validator';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
-import { DatabaseService } from '@/database/database.service';
-import { NewUser } from './utils/createUser';
-import { User } from '@/users/entities/user.entity';
-import { v4 as uuidv4 } from 'uuid';
-
+import { User } from './entities/user.entity';
 @Injectable()
 export class UsersService {
-  constructor(private db: DatabaseService) {}
+  constructor(
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
+  ) {}
 
-  create(createUserDto: CreateUserDto): User {
+  async create(createUserDto: CreateUserDto): Promise<User> {
     if (!createUserDto.hasOwnProperty('login')) {
       throw new BadRequestException('Bad request. Try again');
     }
     if (!createUserDto.hasOwnProperty('password')) {
       throw new BadRequestException('Bad request. Try again');
     }
-    {
-      const uuid = uuidv4();
-      const startVersion = 1;
-      const creationTimestamp = Date.now();
-      const lastUpdateTimestamp = creationTimestamp;
 
-      const newUser = new NewUser({
-        id: uuid,
-        ...createUserDto,
-        version: startVersion,
-        createdAt: creationTimestamp,
-        updatedAt: lastUpdateTimestamp,
-      });
-
-      this.db.users.push(newUser);
-
-      return newUser;
-    }
+    const createdUser = this.usersRepository.create(createUserDto);
+    return await this.usersRepository.save(createdUser);
   }
 
-  findAll(): User[] {
-    return this.db.users;
+  findAll(): Promise<User[]> {
+    return this.usersRepository.find();
   }
 
-  findOne(id: string): User {
+  async findOne(id: string): Promise<User> {
     const isValid = UUIDv4.validate(id);
-    const user = this.db.users.find((user) => user.id === id);
+    const user = await this.usersRepository.findOneBy({ id });
 
     if (!isValid) {
       throw new BadRequestException('Bad request. Try again');
@@ -64,11 +50,11 @@ export class UsersService {
     }
   }
 
-  update(id: string, updatePasswordDto: UpdatePasswordDto): User {
-    const index = this.db.users.findIndex((user) => user.id === id);
-    const user = this.db.users.find((user) => user.id === id);
-
-    const newTimestamp = Date.now();
+  async update(
+    id: string,
+    updatePasswordDto: UpdatePasswordDto,
+  ): Promise<User> {
+    const user = await this.usersRepository.findOneBy({ id });
     const { oldPassword, newPassword } = updatePasswordDto;
 
     if (
@@ -86,29 +72,18 @@ export class UsersService {
     if (user.password !== oldPassword) {
       throw new ForbiddenException('Old password is wrong');
     }
-
-    const updatedUser = new NewUser({
-      ...user,
-      version: 1,
-      password: newPassword,
-      updatedAt: newTimestamp,
-    });
-
-    this.db.users.splice(index, 1, updatedUser);
-
-    return updatedUser;
+    user.password = newPassword;
+    return await this.usersRepository.save(user);
   }
 
-  remove(id: string) {
-    const index = this.db.users.findIndex((user) => user.id === id);
-
+  async remove(id: string): Promise<void> {
+    const user = await this.usersRepository.findOneBy({ id });
     if (!UUIDv4.validate(id)) {
       throw new BadRequestException('Bad request. Try again');
     }
-    if (index === -1) {
+    if (!user) {
       throw new NotFoundException('User not found');
     }
-
-    this.db.users.splice(index, 1);
+    await this.usersRepository.delete(id);
   }
 }

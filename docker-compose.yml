@@ -1,0 +1,36 @@
+version: '3.9'
+services:
+  app:
+    image: my-app
+    build:
+      dockerfile: Dockerfile
+      context: .
+    restart: unless-stopped
+    command: npm run start
+    env_file:
+      - .env
+    ports:
+      - '${PORT}:${PORT}'
+    networks:
+      - network
+    depends_on:
+      - db
+  db:
+    image: my-postgres-db
+    build:
+      dockerfile: ./postgress/Dockerfile
+      context: .
+    env_file:
+      - .env
+    restart: unless-stopped
+    ports:
+      - '${PORT_DB}:${PORT_DB}'
+    environment:
+      POSTGRES_USER: '${POSTGRES_USER}'
+      POSTGRES_PASSWORD: '${POSTGRES_PASSWORD}'
+      POSTGRES_DB: '${POSTGRES_DB}'
+    networks:
+      - network
+networks:
+  network:
+    driver: bridge

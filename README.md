@@ -1,4 +1,4 @@
-# Home Library Service
+# Home Library Service 2
 
 ## Prerequisites
 
@@ -23,50 +23,87 @@ npm install
 npm start
 ```
 
-After starting the app on port (4000 as default) you can open
-in your browser OpenAPI documentation by typing http://localhost:4000/doc/.
-For more information about OpenAPI/Swagger please visit https://swagger.io/.
+## Docker
 
-## Testing
-
-After application running open new terminal and enter:
-
-To run all tests without authorization
+Create image from Dockerfile for DB:
+you can move to postgres folder
 
 ```
-npm run test
+cd postgres
 ```
 
-To run only one of all test suites
+or change path: ./postgres
 
 ```
-npm run test -- <path to suite>
+docker build -t my-postgres-db .
 ```
 
-To run all test with authorization
+name of image - «my-postgres-db»
+
+View all images:
 
 ```
-npm run test:auth
+docker images -a
 ```
 
-To run only specific test suite with authorization
+You can run a container by doing:
 
 ```
-npm run test:auth -- <path to suite>
+docker run -d --name my-postgresdb-container -p 5432:5432 my-postgres-db
 ```
 
-### Auto-fix and format
+or
+
+```
+docker run --name postgres-container -p 5432:5432 -e POSTGRES_USER=your_name -e POSTGRES_PASSWORD={your_password} -e POSTGRES_DB=postgres -d my-postgres-db
+```
+
+Create container for app:
+
+Create image from Dockerfile for app:
+
+```
+docker build -t my-postgres-db .
+```
+
+Create container for app:
+
+```
+docker run  --name app-container -dp 4000:4000 my-app
+```
+
+Run/stop compose file:
+
+```
+docker compose up
+```
+
+Run/stop compose file:
+
+```
+docker compose start
+```
+
+```
+docker compose stop
+```
+
+## Database
+
+Generate migration:
+
+```
+npm run migration:generate -- db/migrations/UserMigration
+```
+
+Create tables:
+
+```
+npm run migration:run
+```
+
+## ESLint
 
 ```
 npm run lint
 ```
-
-```
-npm run format
-```
-
-### Debugging in VSCode
-
-Press <kbd>F5</kbd> to debug.
-
-For more information, visit: https://code.visualstudio.com/docs/editor/debugging
