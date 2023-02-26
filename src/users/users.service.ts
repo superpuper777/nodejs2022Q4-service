@@ -5,6 +5,8 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { UUIDv4 } from 'uuid-v4-validator';
+import bcrypt from 'bcrypt';
+
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { DatabaseService } from '@/database/database.service';
@@ -16,7 +18,7 @@ import { v4 as uuidv4 } from 'uuid';
 export class UsersService {
   constructor(private db: DatabaseService) {}
 
-  create(createUserDto: CreateUserDto): User {
+  async create(createUserDto: CreateUserDto): Promise<User> {
     if (!createUserDto.hasOwnProperty('login')) {
       throw new BadRequestException('Bad request. Try again');
     }
@@ -28,7 +30,11 @@ export class UsersService {
       const startVersion = 1;
       const creationTimestamp = Date.now();
       const lastUpdateTimestamp = creationTimestamp;
-
+      const { password } = createUserDto;
+      createUserDto.password = await bcrypt.hash(
+        password,
+        process.env.CRYPT_SALT,
+      );
       const newUser = new NewUser({
         id: uuid,
         ...createUserDto,
