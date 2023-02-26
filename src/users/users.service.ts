@@ -64,6 +64,10 @@ export class UsersService {
     }
   }
 
+  findOneByLogin(login: string): User {
+    return this.db.users.find((user) => user.login === login);
+  }
+
   update(id: string, updatePasswordDto: UpdatePasswordDto): User {
     const index = this.db.users.findIndex((user) => user.id === id);
     const user = this.db.users.find((user) => user.id === id);
