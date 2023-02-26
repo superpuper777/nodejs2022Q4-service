@@ -62,14 +62,20 @@ export class TracksService {
     if (index !== -1) {
       this.db.tracks[index] = { id, ...updateTrackDto };
     }
-    const track = this.db.tracks[index];
-    const updatedTrack = new NewTrack({
-      ...track,
-      ...updateTrackDto,
-    });
+    if (
+      updateTrackDto.hasOwnProperty('name') &&
+      updateTrackDto.hasOwnProperty('albumId') &&
+      updateTrackDto.hasOwnProperty('artistId') &&
+      updateTrackDto.hasOwnProperty('duration')
+    ) {
+      const updatedTrack = Object.assign(this.db.tracks[index], {
+        ...updateTrackDto,
+      });
 
-    this.db.tracks.splice(index, 1, updatedTrack);
-    return updatedTrack;
+      this.db.tracks[index] = updatedTrack;
+
+      return updatedTrack;
+    } else throw new BadRequestException();
   }
 
   remove(id: string) {

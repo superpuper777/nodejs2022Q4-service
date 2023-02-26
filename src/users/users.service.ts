@@ -89,7 +89,7 @@ export class UsersService {
 
     const updatedUser = new NewUser({
       ...user,
-      version: 1,
+      version: ++user.version,
       password: newPassword,
       updatedAt: newTimestamp,
     });

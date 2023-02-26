@@ -1,8 +1,10 @@
 import {
+  Inject,
   Injectable,
   BadRequestException,
   UnprocessableEntityException,
   NotFoundException,
+  forwardRef,
 } from '@nestjs/common';
 import { UpdateFavoriteDto } from './dto/update-favorite.dto';
 import { DatabaseService } from '@/database/database.service';
@@ -46,7 +48,7 @@ export class FavoritesService {
     const index = this.db.favorites.tracks.findIndex((track) => track === id);
 
     if (index === -1) {
-      throw new NotFoundException('Artist not found');
+      throw new NotFoundException('Track not found');
     }
 
     this.db.favorites.tracks.splice(index, 1);

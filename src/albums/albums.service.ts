@@ -65,9 +65,14 @@ export class AlbumsService {
     if (index === -1) {
       throw new NotFoundException('Album not found');
     }
-    this.db.albums.splice(index, 1, updatedAlbum);
-
-    return updatedAlbum;
+    if (
+      updateAlbumDto.hasOwnProperty('name') &&
+      updateAlbumDto.hasOwnProperty('year') &&
+      updateAlbumDto.hasOwnProperty('artistId')
+    ) {
+      this.db.albums.splice(index, 1, updatedAlbum);
+      return updatedAlbum;
+    } else throw new BadRequestException('Bad request. Try again');
   }
 
   remove(id: string) {
