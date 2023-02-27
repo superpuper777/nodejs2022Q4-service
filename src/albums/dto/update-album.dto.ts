@@ -1,3 +1,8 @@
 import { CreateAlbumDto } from './create-album.dto';
+import { PartialType } from '@nestjs/mapped-types';
 
-export class UpdateAlbumDto extends CreateAlbumDto {}
+export class UpdateAlbumDto extends PartialType(CreateAlbumDto) {
+  name: string;
+  year: number;
+  artistId: string | null;
+}

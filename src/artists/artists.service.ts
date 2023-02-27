@@ -52,12 +52,12 @@ export class ArtistsService {
       throw new BadRequestException();
     }
 
-    if (!updateArtistDto.hasOwnProperty('name')) {
-      throw new BadRequestException('Bad request. Try again');
-    }
-    if (!updateArtistDto.hasOwnProperty('grammy')) {
-      throw new BadRequestException('Bad request. Try again');
-    }
+    // if (!updateArtistDto.hasOwnProperty('name')) {
+    //   throw new BadRequestException('Bad request. Try again');
+    // }
+    // if (!updateArtistDto.hasOwnProperty('grammy')) {
+    //   throw new BadRequestException('Bad request. Try again');
+    // }
 
     if (index !== -1) {
       this.db.artists[index] = { id, ...updateArtistDto };

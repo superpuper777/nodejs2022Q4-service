@@ -5,6 +5,8 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { UUIDv4 } from 'uuid-v4-validator';
+import * as bcrypt from 'bcrypt';
+
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { DatabaseService } from '@/database/database.service';
@@ -16,7 +18,7 @@ import { v4 as uuidv4 } from 'uuid';
 export class UsersService {
   constructor(private db: DatabaseService) {}
 
-  create(createUserDto: CreateUserDto): User {
+  async create(createUserDto: CreateUserDto): Promise<User> {
     if (!createUserDto.hasOwnProperty('login')) {
       throw new BadRequestException('Bad request. Try again');
     }
@@ -28,7 +30,11 @@ export class UsersService {
       const startVersion = 1;
       const creationTimestamp = Date.now();
       const lastUpdateTimestamp = creationTimestamp;
-
+      const { password } = createUserDto;
+      createUserDto.password = await bcrypt.hash(
+        password,
+        parseInt(process.env.CRYPT_SALT),
+      );
       const newUser = new NewUser({
         id: uuid,
         ...createUserDto,
@@ -64,9 +70,16 @@ export class UsersService {
     }
   }
 
-  update(id: string, updatePasswordDto: UpdatePasswordDto): User {
-    const index = this.db.users.findIndex((user) => user.id === id);
-    const user = this.db.users.find((user) => user.id === id);
+  findOneByLogin(login: string): User {
+    return this.db.users.find((user) => user.login === login);
+  }
+
+  async update(
+    id: string,
+    updatePasswordDto: UpdatePasswordDto,
+  ): Promise<User> {
+    const index = await this.db.users.findIndex((user) => user.id === id);
+    const user = await this.db.users.find((user) => user.id === id);
 
     const newTimestamp = Date.now();
     const { oldPassword, newPassword } = updatePasswordDto;
@@ -83,14 +96,16 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
 
-    if (user.password !== oldPassword) {
-      throw new ForbiddenException('Old password is wrong');
-    }
+    const isPasswordMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isPasswordMatch) throw new ForbiddenException('Old password is wrong');
 
     const updatedUser = new NewUser({
       ...user,
-      version: 1,
-      password: newPassword,
+      version: ++user.version,
+      password: await bcrypt.hash(
+        newPassword,
+        parseInt(process.env.CRYPT_SALT),
+      ),
       updatedAt: newTimestamp,
     });
 

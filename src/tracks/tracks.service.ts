@@ -50,8 +50,15 @@ export class TracksService {
 
   update(id: string, updateTrackDto: UpdateTrackDto) {
     const index = this.db.tracks.findIndex((track) => track.id === id);
-
-    if (!UUIDv4.validate(id)) {
+    const { name } = updateTrackDto;
+    if (
+      !UUIDv4.validate(id) ||
+      (!updateTrackDto.hasOwnProperty('name') &&
+        !updateTrackDto.hasOwnProperty('albumId') &&
+        !updateTrackDto.hasOwnProperty('artistId') &&
+        !updateTrackDto.hasOwnProperty('duration')) ||
+      !name
+    ) {
       throw new BadRequestException('Bad request. Try again');
     }
 
@@ -62,13 +69,13 @@ export class TracksService {
     if (index !== -1) {
       this.db.tracks[index] = { id, ...updateTrackDto };
     }
-    const track = this.db.tracks[index];
-    const updatedTrack = new NewTrack({
-      ...track,
+
+    const updatedTrack = Object.assign(this.db.tracks[index], {
       ...updateTrackDto,
     });
 
-    this.db.tracks.splice(index, 1, updatedTrack);
+    this.db.tracks[index] = updatedTrack;
+
     return updatedTrack;
   }
 
