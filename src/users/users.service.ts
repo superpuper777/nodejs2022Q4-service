@@ -5,7 +5,7 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { UUIDv4 } from 'uuid-v4-validator';
-import bcrypt from 'bcrypt';
+import * as bcrypt from 'bcrypt';
 
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
@@ -33,7 +33,7 @@ export class UsersService {
       const { password } = createUserDto;
       createUserDto.password = await bcrypt.hash(
         password,
-        process.env.CRYPT_SALT,
+        parseInt(process.env.CRYPT_SALT),
       );
       const newUser = new NewUser({
         id: uuid,
@@ -74,9 +74,12 @@ export class UsersService {
     return this.db.users.find((user) => user.login === login);
   }
 
-  update(id: string, updatePasswordDto: UpdatePasswordDto): User {
-    const index = this.db.users.findIndex((user) => user.id === id);
-    const user = this.db.users.find((user) => user.id === id);
+  async update(
+    id: string,
+    updatePasswordDto: UpdatePasswordDto,
+  ): Promise<User> {
+    const index = await this.db.users.findIndex((user) => user.id === id);
+    const user = await this.db.users.find((user) => user.id === id);
 
     const newTimestamp = Date.now();
     const { oldPassword, newPassword } = updatePasswordDto;
@@ -93,14 +96,19 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
 
-    if (user.password !== oldPassword) {
-      throw new ForbiddenException('Old password is wrong');
-    }
+    // if (user.password !== oldPassword) {
+    //   throw new ForbiddenException('Old password is wrong');
+    // }
+    const isPasswordMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isPasswordMatch) throw new ForbiddenException('Old password is wrong');
 
     const updatedUser = new NewUser({
       ...user,
       version: ++user.version,
-      password: newPassword,
+      password: await bcrypt.hash(
+        newPassword,
+        parseInt(process.env.CRYPT_SALT),
+      ),
       updatedAt: newTimestamp,
     });
 
