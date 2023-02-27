@@ -7,6 +7,7 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { UpdateFavoriteDto } from './dto/update-favorite.dto';
+import { UUIDv4 } from 'uuid-v4-validator';
 import { DatabaseService } from '@/database/database.service';
 import { NewFavoriteItem } from './utils/createFavorite';
 
@@ -36,7 +37,11 @@ export class FavoritesService {
 
   addTrack(id: string) {
     const track = this.db.tracks.find((track) => track.id === id);
+    const isValid = UUIDv4.validate(id);
 
+    if (!isValid) {
+      throw new BadRequestException('Bad request. Try again');
+    }
     if (!track) {
       throw new UnprocessableEntityException('Track not found');
     }
@@ -46,7 +51,11 @@ export class FavoritesService {
 
   removeTrack(id: string) {
     const index = this.db.favorites.tracks.findIndex((track) => track === id);
+    const isValid = UUIDv4.validate(id);
 
+    if (!isValid) {
+      throw new BadRequestException('Bad request. Try again');
+    }
     if (index === -1) {
       throw new NotFoundException('Track not found');
     }
@@ -56,7 +65,11 @@ export class FavoritesService {
 
   addAlbum(id: string) {
     const album = this.db.albums.find((album) => album.id === id);
+    const isValid = UUIDv4.validate(id);
 
+    if (!isValid) {
+      throw new BadRequestException('Bad request. Try again');
+    }
     if (!album) {
       throw new UnprocessableEntityException('Album not found');
     }
@@ -66,7 +79,11 @@ export class FavoritesService {
 
   removeAlbum(id: string) {
     const index = this.db.favorites.albums.findIndex((album) => album === id);
+    const isValid = UUIDv4.validate(id);
 
+    if (!isValid) {
+      throw new BadRequestException('Bad request. Try again');
+    }
     if (index === -1) {
       throw new NotFoundException('Album not found');
     }
@@ -76,7 +93,11 @@ export class FavoritesService {
 
   addArtist(id: string) {
     const artist = this.db.artists.find((artist) => artist.id === id);
+    const isValid = UUIDv4.validate(id);
 
+    if (!isValid) {
+      throw new BadRequestException('Bad request. Try again');
+    }
     if (!artist) {
       throw new UnprocessableEntityException('Artist not found');
     }
@@ -88,7 +109,11 @@ export class FavoritesService {
     const index = this.db.favorites.artists.findIndex(
       (artist) => artist === id,
     );
+    const isValid = UUIDv4.validate(id);
 
+    if (!isValid) {
+      throw new BadRequestException('Bad request. Try again');
+    }
     if (index === -1) {
       throw new NotFoundException('Artist not found');
     }

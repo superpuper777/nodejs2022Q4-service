@@ -49,30 +49,28 @@ export class AlbumsService {
 
   update(id: string, updateAlbumDto: UpdateAlbumDto) {
     const index = this.db.albums.findIndex((artist) => artist.id === id);
+    const { artistId, year, name } = updateAlbumDto;
 
-    if (!UUIDv4.validate(id)) {
-      throw new BadRequestException();
+    if (
+      !UUIDv4.validate(id) ||
+      (!updateAlbumDto.hasOwnProperty('name') &&
+        !updateAlbumDto.hasOwnProperty('albumId') &&
+        !updateAlbumDto.hasOwnProperty('artistId')) ||
+      !artistId
+    ) {
+      throw new BadRequestException('Bad request. Try again');
     }
-
-    if (index !== -1) {
-      this.db.albums[index] = { id, ...updateAlbumDto };
-    }
-    const album = this.db.albums[index];
-    const updatedAlbum = new NewAlbum({
-      ...album,
-      ...updateAlbumDto,
-    });
     if (index === -1) {
       throw new NotFoundException('Album not found');
     }
-    if (
-      updateAlbumDto.hasOwnProperty('name') &&
-      updateAlbumDto.hasOwnProperty('year') &&
-      updateAlbumDto.hasOwnProperty('artistId')
-    ) {
-      this.db.albums.splice(index, 1, updatedAlbum);
-      return updatedAlbum;
-    } else throw new BadRequestException('Bad request. Try again');
+    const album = this.db.albums[index];
+    const updatedAlbum = {
+      ...album,
+      ...updateAlbumDto,
+    };
+
+    this.db.albums.splice(index, 1, updatedAlbum);
+    return updatedAlbum;
   }
 
   remove(id: string) {
