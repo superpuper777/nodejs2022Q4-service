@@ -7,10 +7,7 @@ import { User } from '@/users/entities/user.entity';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(
-    private authService: AuthService,
-    private jwtService: JwtService,
-  ) {
+  constructor() {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
@@ -19,10 +16,5 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(user: User) {
-    const payload = { username: user.login, sub: user.id };
-    return {
-      access_token: this.jwtService.sign(payload),
-    };
-  }
+  // async validate(payload: any) {}
 }
