@@ -4,7 +4,9 @@ import { UsersModule } from '@/users/users.module';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { LocalStrategy } from './strategies/local.strategy';
-import { JwtStrategy } from './strategies/jwt.strategy';
+import { AccessTokenStrategy } from './strategies/accessToken.strategy';
+import { RefreshTokenStrategy } from './strategies/refreshToken.strategy';
+
 import { AuthController } from './auth.controller';
 
 @Module({
@@ -16,7 +18,12 @@ import { AuthController } from './auth.controller';
       signOptions: { expiresIn: process.env.TOKEN_EXPIRE_TIME },
     }),
   ],
-  providers: [AuthService, LocalStrategy, JwtStrategy],
+  providers: [
+    AuthService,
+    LocalStrategy,
+    AccessTokenStrategy,
+    RefreshTokenStrategy,
+  ],
   controllers: [AuthController],
 })
 export class AuthModule {}
